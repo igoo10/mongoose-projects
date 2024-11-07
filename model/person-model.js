@@ -16,7 +16,7 @@ const personSchema = new mongoose.Schema({
     max: [120, 'Age cannot exceed 120'], 
     default: 30, 
   },
-  favoriteSubjects: {
+  favoriteFoods: {
     type: [String], 
     default: [], 
   },

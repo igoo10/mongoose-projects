@@ -1,37 +1,36 @@
+// person-controller.js
 const mongoose = require('mongoose');
-const Person = require('../model/person-model'); // the path to where your model is defined
+const Person = require('../model/person-model');
 
+// Create a new person
 const createPerson = async () => {
   try {
-
-    const newStudent = new student({
-      firstname: "John", 
-      lastname:"Doe",
+    const newPerson = new Person({
+      firstname: "John",
+      lastname: "Doe",
       age: 30,
-      favoriteFoods: ['Pizza', 'Burger'] 
+      favoriteFoods: ['Pizza', 'Burger']
     });
-    
-    // Save the document
+
     const savedPerson = await newPerson.save();
     console.log('Saved person:', savedPerson);
-    return savedPerson._id; // Return the ID of the saved person for later use
+    return savedPerson._id;
   } catch (err) {
     console.error('Error saving person:', err.message);
   }
 };
 
+// Create multiple people
 const createManyPeople = async () => {
   try {
-    // Array of people to be created
     const arrayOfPeople = [
-      { firstname: "Alice", lastname:"Smith", age: 28, favoriteFoods:['Susfi', 'Tacos'] },
-      { firstname: "Bob",   lastname:"Johnson", age: 34, favoriteFoods: ['Pizza', 'Burger'] },
-      { firstname: "Charlie", lastname:"Brown", age: 22, favoriteFoods: ['Pasta', 'Salad'] },
-      { firstname: "Mary", lastname:"Opraya" ,  age: 40, favoriteFoods: ['Apple Pie', 'Chocolate'] },
-      { firstname: "Jumoke", lastname:"Shalalo",  age: 25, favoriteFoods: ['Ice Cream', 'Cake'] }
+      { firstname: "Alice", lastname: "Smith", age: 28, favoriteFoods: ['Sushi', 'Tacos'] },
+      { firstname: "Bob", lastname: "Johnson", age: 34, favoriteFoods: ['Pizza', 'Burger'] },
+      { firstname: "Charlie", lastname: "Brown", age: 22, favoriteFoods: ['Pasta', 'Salad'] },
+      { firstname: "Mary", lastname: "Opraya", age: 40, favoriteFoods: ['Apple Pie', 'Chocolate'] },
+      { firstname: "Jumoke", lastname: "Shalalo", age: 25, favoriteFoods: ['Ice Cream', 'Cake'] }
     ];
 
-    // using Model.create() to save multiple records at once
     const createdPeople = await Person.create(arrayOfPeople);
     console.log('Created people:', createdPeople);
   } catch (err) {
@@ -39,71 +38,102 @@ const createManyPeople = async () => {
   }
 };
 
+// Find people by name
+const findPeopleByName = async (name) => {
+  try {
+    const people = await Person.find({ firstname: name });
+    console.log('Found people:', people);
+    return people;
+  } catch (err) {
+    console.error('Error finding people:', err.message);
+  }
+};
+
+// Find one person by favorite food
+const findOneByFavoriteFood = async (food) => {
+  try {
+    const person = await Person.findOne({ favoriteFoods: food });
+    console.log('Found person by favorite food:', person);
+    return person;
+  } catch (err) {
+    console.error('Error finding person by favorite food:', err.message);
+  }
+};
+
+// Find person by ID
 const findPersonById = async (personId) => {
-    try {
-      const person = await Person.findById(personId);
-      if (person) {
-        console.log('Found person:', person);
-      } else {
-        console.log('Person not found');
-      }
-    } catch (err) {
-      console.error('Error finding person:', err.message);
-    }
-  };
-  
-  const updatePersonAge = async (firstname, lastname) => {
-    try {
-      const updatedPerson = await Person.findOneAndUpdate(
-        { firstname: firstname, lastname: lastname }, // Search criteria
-        { age: 50 }, // Update
-        { new: true } // Return the updated document
-      );
-  
-      if (updatedPerson) {
-        console.log('Updated person:', updatedPerson);
-      } else {
-        console.log('Person not found');
-      }
-    } catch (err) {
-      console.error('Error updating person:', err.message);
-    }
-  };
-  
+  try {
+    const person = await Person.findById(personId);
+    console.log('Found person by ID:', person);
+    return person;
+  } catch (err) {
+    console.error('Error finding person by ID:', err.message);
+  }
+};
 
-  const deletePersonById = async (personId) => {
-    try {
-      const removedPerson = await Person.findByIdAndDelete(personId);
-      if (removedPerson) {
-        console.log('Removed person:', removedPerson);
-      } else {
-        console.log('Person not found for deletion');
-      }
-    } catch (err) {
-      console.error('Error removing person:', err.message);
+// Update person by adding "hamburger" to favorite foods
+const addFavoriteFoodById = async (personId) => {
+  try {
+    const person = await Person.findById(personId);
+    if (person) {
+      person.favoriteFoods.push("hamburger");
+      await person.save();
+      console.log('Updated person with new favorite food:', person);
+      return person;
+    } else {
+      console.log('Person not found');
     }
-  };
-  
+  } catch (err) {
+    console.error('Error updating person:', err.message);
+  }
+};
 
-  const deleteManyPeopleByName = async (name) => {
-    try {
-      const result = await Person.deleteMany({ lastname: name });
-      console.log('Delete result:', result);
-    } catch (err) {
-      console.error('Error removing people:', err.message);
-    }
-  };
-  
+// Update person's age to 20 by name
+const updatePersonAge = async (personName) => {
+  try {
+    const updatedPerson = await Person.findOneAndUpdate(
+      { firstname: personName },
+      { age: 20 },
+      { new: true }  // Return the updated document
+    );
 
-// Call the functions to create, save data, perform updates, and delete documents
-const run = async () => {
-    const personId = await createPerson(); // Save a person and get their ID
-    await createManyPeople(); // Create multiple people
-    await findPersonById(personId); // Find the person by ID
-    await updatePersonAge('John', 'Doe'); // Update the age of the person with name 'John Doe'
-    await deletePersonById(personId); // Delete the person by ID
-    await deleteManyPeopleByName('Smith'); // Delete all people with the last name 'Smith'
-  };
-  
-  run();
-  
+    console.log('Updated person:', updatedPerson);
+    return updatedPerson;
+  } catch (err) {
+    console.error('Error updating person:', err.message);
+  }
+};
+
+// Delete person by ID
+const deletePersonById = async (personId) => {
+  try {
+    const removedPerson = await Person.findByIdAndRemove(personId);
+    console.log('Removed person:', removedPerson);
+    return removedPerson;
+  } catch (err) {
+    console.error('Error removing person:', err.message);
+  }
+};
+
+// Delete all people with a given name
+const deleteManyPeopleByName = async (name) => {
+  try {
+    const result = await Person.deleteMany({ firstname: name });
+    console.log('Deleted people:', result);
+    return result;
+  } catch (err) {
+    console.error('Error deleting people:', err.message);
+  }
+};
+
+module.exports = {
+  createPerson,
+  createManyPeople,
+  findPeopleByName,
+  findOneByFavoriteFood,
+  findPersonById,
+  addFavoriteFoodById,
+  updatePersonAge,
+  deletePersonById,
+  deleteManyPeopleByName
+};
